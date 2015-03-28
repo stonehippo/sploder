@@ -1,10 +1,13 @@
 /*
 SPLODER - a connected button for blowing stuff up. Or whatever else you want to do with it.
 */
-#include <FiniteStateMachine.h>
 
-// Logging and debug controls
-#define DEBUG true
+// Override enabling of logging and debug output
+//#define DEBUG false
+
+#include <FiniteStateMachine.h>
+#include "LogHelpers.h"
+#include "TimingHelpers.h"
 
 // Hold the state of the arming switch
 boolean armed = false;
@@ -32,6 +35,8 @@ State firingState = State(enterFiringState,updateFiringState,leaveFiringState);
 // Kicking off the FSM
 FSM stateMachine = FSM(startupState);
 
+// ******************* BASIC ARDUINO SETUP & LOOP ******************* 
+
 void setup() {
   pinMode(TRIGGER_BUTTON, INPUT_PULLUP);
   pinMode(ARMING_SWITCH, INPUT);
@@ -42,6 +47,13 @@ void setup() {
   startLog();
 }
 
+void loop() {
+    stateMachine.update();
+}
+
+
+// ******************* INTERRUPT EVENTS ******************* 
+
 void fireEvent() {
   if ((millis() - lastDebounceTime) > debounceDelay) {
     if (stateMachine.isInState(armedState)) {
@@ -51,11 +63,7 @@ void fireEvent() {
   }
 }
 
-void loop() {
-    stateMachine.update();
-}
-
-// FSM state callback methods
+// ******************* FSM state callback methods ******************* 
 
 // -------------- Startup State ---------------
 void enterStartupState() {
@@ -118,6 +126,8 @@ void leaveFiringState() {
   clearTimer(timerFiringState);
 }
 
+// ******************* HELPERS ******************* 
+
 // Switch state helpers
 void armedStatus() {
   if (digitalRead(ARMING_SWITCH) == LOW) {
@@ -125,48 +135,4 @@ void armedStatus() {
   } else {
     armed = true; 
   }
-}
-
-// Timing helpers
-void startTimer(long &timer) {
-  timer = millis(); 
-}
-
-boolean isTimerExpired(long &timer, int expiration) {
-  long current = millis() - timer;
-  return current > expiration;
-}
-
-void clearTimer(long &timer) {
-  timer = 0; 
-}
-
-// Logging and debug helpers
-
-void startLog() {
-  if (DEBUG) {
-    Serial.begin(9600);
-    note("Now logging to serial");
-  }
-}
-
-void logMessage(String message) {
-  if (DEBUG) {
-    Serial.println(message);
-  } 
-}
-
-void note(String message) {
-  String fullMessage = "NOTE: "+ message;
-  logMessage(fullMessage); 
-}
-
-void warn(String message) {
-  String fullMessage = "WARN: "+ message;
-  logMessage(fullMessage); 
-}
-
-void error(String message) {
-  String fullMessage = "ERROR: "+ message;
-  logMessage(fullMessage); 
 }
