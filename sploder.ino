@@ -12,8 +12,17 @@ const byte TRIGGER_BUTTON = 3;
 const byte ARMED_LED = 4;
 const byte FIRING_LED = 5;
 
+// Managing debounce of the button used to FIRE!
+long lastDebounceTime = 0;
+long debounceDelay = 250;
+
+// We'll hold timing information about certain states here
+long timerStartupState = 0;
+long timerFiringState = 0;
+
 // FSM states
 State startupState = State(enterStartupState,updateStartupState,leaveStartupState);
+State readyState = State(enterReadyState,updateReadyState,leaveReadyState);
 State armedState = State(enterArmedState,updateArmedState,leaveArmedState);
 State firingState = State(enterFiringState,updateFiringState,leaveFiringState);
 
@@ -21,7 +30,23 @@ State firingState = State(enterFiringState,updateFiringState,leaveFiringState);
 FSM stateMachine = FSM(startupState);
 
 void setup() {
+  pinMode(TRIGGER_BUTTON, INPUT_PULLUP);
+  pinMode(ARMING_SWITCH, INPUT);
+  pinMode(ARMED_LED, OUTPUT);
+  pinMode(FIRING_LED, OUTPUT);
+  
+  attachInterrupt(1,fireEvent,HIGH);
+
   startLog();
+}
+
+void fireEvent() {
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (stateMachine.isInState(armedState)) {
+      stateMachine.transitionTo(firingState);
+    }
+    lastDebounceTime = millis();
+  }
 }
 
 void loop() {
@@ -30,17 +55,48 @@ void loop() {
 
 // FSM state callback methods
 
-void enterStartupState() {}
-void updateStartupState() {}
-void leaveStartupState() {}
+// -------------- Startup State ---------------
+void enterStartupState() {
+  note("starting up");
+  startTimer(timerStartupState);
+}
+void updateStartupState() {
+  if(isTimerExpired(timerStartupState, 5000)) {
+    stateMachine.transitionTo(readyState);
+  }
+}
+void leaveStartupState() {
+  note("startup complete");
+  clearTimer(timerStartupState);
+}
 
-void enterArmedState() {}
+// -------------- Ready State ---------------
+void enterReadyState() {}
+void updateReadyState() {}
+void leaveReadyState() {}
+
+// -------------- Armed State ---------------
+void enterArmedState() {
+  note("armed");
+}
 void updateArmedState() {}
 void leaveArmedState() {}
 
-void enterFiringState () {}
-void updateFiringState() {}
-void leaveFiringState() {}
+// -------------- Firing State ---------------
+void enterFiringState () {
+  note("firing!");
+  startTimer(timerStartupState);
+
+}
+void updateFiringState() {
+  if(isTimerExpired(timerFiringState, 1000)) {
+    stateMachine.transitionTo(armedState);
+  }
+}
+void leaveFiringState() {
+  note("fired!");
+  clearTimer(timerFiringState);
+}
 
 // Timing helpers
 void startTimer(long &timer) {
