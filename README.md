@@ -1,6 +1,6 @@
 #SPLODER
 
-A connected button for blowing stuff up. Or whatever else you want to do with it.
+A connected button for doing stuff up.
 
 ## Dependencies
 
