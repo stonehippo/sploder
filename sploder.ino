@@ -6,6 +6,9 @@ SPLODER - a connected button for blowing stuff up. Or whatever else you want to 
 // Logging and debug controls
 #define DEBUG true
 
+// Hold the state of the arming switch
+boolean armed = false;
+
 // Pins configs for the buttons and switches
 const byte ARMING_SWITCH = 8;
 const byte TRIGGER_BUTTON = 3;
@@ -74,7 +77,8 @@ void enterReadyState() {
   note("ready");
 }
 void updateReadyState() {
-  if (digitalRead(ARMING_SWITCH) == HIGH) {
+  armedStatus();
+  if (armed) {
     stateMachine.transitionTo(armedState); 
   }
 }
@@ -85,12 +89,14 @@ void enterArmedState() {
   note("armed");
 }
 void updateArmedState() {
-  if (digitalRead(ARMING_SWITCH) == LOW) {
+  armedStatus();
+  digitalWrite(ARMED_LED, HIGH);  
+  if (!armed) {
     stateMachine.transitionTo(readyState);
   }
-  digitalWrite(ARMED_LED, HIGH);
 }
 void leaveArmedState() {
+  note("disarmed");
   digitalWrite(ARMED_LED, LOW);
 }
 
@@ -110,6 +116,15 @@ void leaveFiringState() {
   note("fired!");
   digitalWrite(FIRING_LED, LOW);
   clearTimer(timerFiringState);
+}
+
+// Switch state helpers
+void armedStatus() {
+  if (digitalRead(ARMING_SWITCH) == LOW) {
+    armed = false;
+  } else {
+    armed = true; 
+  }
 }
 
 // Timing helpers
