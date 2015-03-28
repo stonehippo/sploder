@@ -17,9 +17,9 @@ If you want to hack on Sploder, clone the project into your Arduino sketchbook d
 
 ## Design notes
 
-![Sploder circuit schematic](sploder_schematic.jpg)
+![Sploder circuit schematic](docs/sploder_schematic.jpg)
 
-See the Fritzing sketch `sploder.fzz` for details on the Sploder circuit.
+See the Fritzing sketch `docs/sploder.fzz` for details on the Sploder circuit.
 
 I am using an Arduino Pro Mini 3.3V for my Sploder implementation, but any Arduino should work just fine. I am powering my Sploder from a 3.7V LiPO battery, but anything that works from 3.7V-12V will probably work.
 
