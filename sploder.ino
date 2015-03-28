@@ -20,6 +20,9 @@ long debounceDelay = 250;
 long timerStartupState = 0;
 long timerFiringState = 0;
 
+// Status of the ARMED switch
+boolean armed = false;
+
 // FSM states
 State startupState = State(enterStartupState,updateStartupState,leaveStartupState);
 State readyState = State(enterReadyState,updateReadyState,leaveReadyState);
@@ -71,26 +74,35 @@ void leaveStartupState() {
 }
 
 // -------------- Ready State ---------------
-void enterReadyState() {}
-void updateReadyState() {}
+void enterReadyState() {
+  note("ready");
+}
+void updateReadyState() {
+  if (armed) {
+    stateMachine.transitionTo(armedState); 
+  }
+}
 void leaveReadyState() {}
 
 // -------------- Armed State ---------------
 void enterArmedState() {
   note("armed");
 }
-void updateArmedState() {}
+void updateArmedState() {
+  if (!armed) {
+    stateMachine.transitionTo(readyState);
+  }
+}
 void leaveArmedState() {}
 
 // -------------- Firing State ---------------
 void enterFiringState () {
   note("firing!");
   startTimer(timerStartupState);
-
 }
 void updateFiringState() {
   if(isTimerExpired(timerFiringState, 1000)) {
-    stateMachine.transitionTo(armedState);
+    stateMachine.transitionTo(readyState);
   }
 }
 void leaveFiringState() {
