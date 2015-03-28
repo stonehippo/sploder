@@ -7,7 +7,7 @@ SPLODER - a connected button for blowing stuff up. Or whatever else you want to 
 #define DEBUG true
 
 // Pins configs for the buttons and switches
-const byte ARMING_SWITCH = 2;
+const byte ARMING_SWITCH = 8;
 const byte TRIGGER_BUTTON = 3;
 const byte ARMED_LED = 4;
 const byte FIRING_LED = 5;
@@ -20,9 +20,6 @@ long debounceDelay = 250;
 long timerStartupState = 0;
 long timerFiringState = 0;
 
-// Status of the ARMED switch
-boolean armed = false;
-
 // FSM states
 State startupState = State(enterStartupState,updateStartupState,leaveStartupState);
 State readyState = State(enterReadyState,updateReadyState,leaveReadyState);
@@ -34,12 +31,11 @@ FSM stateMachine = FSM(startupState);
 
 void setup() {
   pinMode(TRIGGER_BUTTON, INPUT_PULLUP);
-  pinMode(ARMING_SWITCH, INPUT_PULLUP);
+  pinMode(ARMING_SWITCH, INPUT);
   pinMode(ARMED_LED, OUTPUT);
   pinMode(FIRING_LED, OUTPUT);
   
   attachInterrupt(1,fireEvent,HIGH);
-
   startLog();
 }
 
@@ -78,7 +74,7 @@ void enterReadyState() {
   note("ready");
 }
 void updateReadyState() {
-  if (armed) {
+  if (digitalRead(ARMING_SWITCH) == HIGH) {
     stateMachine.transitionTo(armedState); 
   }
 }
@@ -89,7 +85,7 @@ void enterArmedState() {
   note("armed");
 }
 void updateArmedState() {
-  if (!armed) {
+  if (digitalRead(ARMING_SWITCH) == LOW) {
     stateMachine.transitionTo(readyState);
   }
   digitalWrite(ARMED_LED, HIGH);
