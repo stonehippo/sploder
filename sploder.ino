@@ -1,5 +1,11 @@
 /*
 SPLODER - a connected button for blowing stuff up. Or whatever else you want to do with it.
+
+Check the README.md for info on the Sploder circuit.
+
+Copyright @ 2015 George White <stonehippo@gmail.com>
+
+See https://raw.githubusercontent.com/stonehippo/sploder/master/LICENSE.txt for license details.
 */
 
 // Override enabling of logging and debug output

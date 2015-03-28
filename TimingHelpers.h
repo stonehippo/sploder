@@ -1,3 +1,9 @@
+/*
+Copyright @ 2015 George White <stonehippo@gmail.com>
+
+See https://raw.githubusercontent.com/stonehippo/sploder/master/LICENSE.txt for license details.
+*/
+
 // ******************* Timing helpers ******************* 
 void startTimer(long &timer) {
   timer = millis(); 
