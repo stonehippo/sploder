@@ -34,7 +34,7 @@ FSM stateMachine = FSM(startupState);
 
 void setup() {
   pinMode(TRIGGER_BUTTON, INPUT_PULLUP);
-  pinMode(ARMING_SWITCH, INPUT);
+  pinMode(ARMING_SWITCH, INPUT_PULLUP);
   pinMode(ARMED_LED, OUTPUT);
   pinMode(FIRING_LED, OUTPUT);
   
@@ -64,7 +64,7 @@ void enterStartupState() {
   startTimer(timerStartupState);
 }
 void updateStartupState() {
-  if(isTimerExpired(timerStartupState, 5000)) {
+  if(isTimerExpired(timerStartupState, 1000)) {
     stateMachine.transitionTo(readyState);
   }
 }
@@ -92,13 +92,18 @@ void updateArmedState() {
   if (!armed) {
     stateMachine.transitionTo(readyState);
   }
+  digitalWrite(ARMED_LED, HIGH);
 }
-void leaveArmedState() {}
+void leaveArmedState() {
+  digitalWrite(ARMED_LED, LOW);
+}
 
 // -------------- Firing State ---------------
 void enterFiringState () {
   note("firing!");
-  startTimer(timerStartupState);
+  digitalWrite(FIRING_LED, HIGH);
+
+  startTimer(timerFiringState);
 }
 void updateFiringState() {
   if(isTimerExpired(timerFiringState, 1000)) {
@@ -107,6 +112,7 @@ void updateFiringState() {
 }
 void leaveFiringState() {
   note("fired!");
+  digitalWrite(FIRING_LED, LOW);
   clearTimer(timerFiringState);
 }
 
