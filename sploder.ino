@@ -45,7 +45,7 @@ FSM stateMachine = FSM(startupState);
 
 void setup() {
   pinMode(TRIGGER_BUTTON, INPUT_PULLUP);
-  pinMode(ARMING_SWITCH, INPUT);
+  pinMode(ARMING_SWITCH, INPUT_PULLUP);
   pinMode(ARMED_LED, OUTPUT);
   pinMode(FIRING_LED, OUTPUT);
   
@@ -136,7 +136,7 @@ void leaveFiringState() {
 
 // Switch state helpers
 void armedStatus() {
-  if (digitalRead(ARMING_SWITCH) == LOW) {
+  if (digitalRead(ARMING_SWITCH) == HIGH) {
     armed = false;
   } else {
     armed = true; 
