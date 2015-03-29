@@ -138,11 +138,11 @@ void updateArmedState() {
   armedStatus();
   digitalWrite(ARMED_LED, HIGH);  
   if (!armed) {
+    blePrint("disarmed");
     stateMachine.transitionTo(readyState);
   }
 }
 void leaveArmedState() {
-  blePrint("disarmed");
   digitalWrite(ARMED_LED, LOW);
 }
 
@@ -155,7 +155,7 @@ void enterFiringState () {
 }
 void updateFiringState() {
   if(isTimerExpired(timerFiringState, 1000)) {
-    stateMachine.transitionTo(readyState);
+    stateMachine.transitionTo(armedState);
   }
 }
 void leaveFiringState() {
