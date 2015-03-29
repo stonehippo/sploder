@@ -24,7 +24,7 @@ Sploder's firmware implements a simple Finite State Machine, an FSM, to make it 
 
 Sploder's FSM watches for three types of events for each state: entering, updating, or leaving. The events may occur automatically, or based on input to Sploder's sensor, i.e. it's arming or firing switches.
 
-![Sploder FSM](doc/sploder_fsm.jpg)
+![Sploder FSM](docs/sploder_fsm.jpg)
 
 The *startup* state is the initial state when the Sploder device is turned on. Right now, this doesn't do much of anything except pause for a second, then immediate transition to the ready state.
 
