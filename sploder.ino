@@ -78,6 +78,17 @@ void loop() {
     }
     if (bleStatus == ACI_EVT_CONNECTED) {
       info("BLE connected");
+      // Immediately send the current state of the FSM
+      // Have to use the library print() helper, as the current status has not been updated yet
+      if (stateMachine.isInState(readyState)) {
+        BluetoothLESerial.print("ready");
+      }
+      if (stateMachine.isInState(armedState)) {
+        BluetoothLESerial.print("armed");
+      }
+      if (stateMachine.isInState(firingState)) {
+        BluetoothLESerial.print("firing");
+      }
     }
     if (bleStatus == ACI_EVT_DISCONNECTED) {
       info("BLE disconnected");
