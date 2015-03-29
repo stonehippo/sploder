@@ -6,32 +6,13 @@ Check the README.md for info on the Sploder circuit.
 Copyright (C) 2015 George White <stonehippo@gmail.com>. All rights reserved.
 
 See https://raw.githubusercontent.com/stonehippo/sploder/master/LICENSE.txt for license details.
-
-This application makes use of a modified version of the Firmata library and some code herein is adapted
-from the Adafruit StandardFirmata modified to work with their BLE library. The following copyrights and license
-apply to that code.
-
-  Copyright (C) 2006-2008 Hans-Christoph Steiner.  All rights reserved.
-  Copyright (C) 2010-2011 Paul Stoffregen.  All rights reserved.
-  Copyright (C) 2009 Shigeru Kobayashi.  All rights reserved.
-  Copyright (C) 2009-2011 Jeff Hoefs.  All rights reserved.
-  Copyright (C) 2014 Limor Fried/Kevin Townsend  All rights reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-  
-See https://raw.githubusercontent.com/stonehippo/sploder/master/FIRMATA_LICENSE.txt for license details on this code.
 */
 
 // Override enabling of logging and debug output
-//#define DEBUG false
+#define DEBUG false
 
 #include <FiniteStateMachine.h>
-#include <Wire.h>
 #include <SPI.h>
-#include <Adafruit_BLE_Firmata.h>
 #include "Adafruit_BLE_UART.h"
 #include "LogHelpers.h"
 #include "TimingHelpers.h"
@@ -53,8 +34,8 @@ const byte BLE_RESET = 9;
 // Create a Bluetooth LE UART instance to set up the basic connection
 Adafruit_BLE_UART BluetoothLESerial = Adafruit_BLE_UART(BLE_REQUEST, BLE_READY, BLE_RESET);
 
-// Set up Firmata so we can chat with an app
-Adafruit_BLE_FirmataClass firmata(BluetoothLESerial);
+// Global to monitor the state of the nrf8001 Bluetooth board
+aci_evt_opcode_t bleLastStatus = ACI_EVT_DISCONNECTED;
 
 // Managing debounce of the button used to FIRE!
 long lastDebounceTime = 0;
@@ -83,10 +64,29 @@ void setup() {
   
   attachInterrupt(1,fireEvent,HIGH);
   startLog();
+  BluetoothLESerial.begin();
 }
 
 void loop() {
-    stateMachine.update();
+  // What's up, Bluetooth?
+  BluetoothLESerial.pollACI();
+  //check the status of the Bluetooth LE connection
+  aci_evt_opcode_t bleStatus = BluetoothLESerial.getState();
+  if (bleStatus != bleLastStatus) {
+    if (bleStatus == ACI_EVT_DEVICE_STARTED) {
+      info("BLE advertising started");
+    }
+    if (bleStatus == ACI_EVT_CONNECTED) {
+      info("BLE connected");
+    }
+    if (bleStatus == ACI_EVT_DISCONNECTED) {
+      info("BLE disconnected");
+    }
+    bleLastStatus = bleStatus;
+  }
+  
+  // Time to handle the state machine
+  stateMachine.update();
 }
 
 
@@ -120,7 +120,7 @@ void leaveStartupState() {
 
 // -------------- Ready State ---------------
 void enterReadyState() {
-  note("ready");
+  blePrint("ready");
 }
 void updateReadyState() {
   armedStatus();
@@ -132,7 +132,7 @@ void leaveReadyState() {}
 
 // -------------- Armed State ---------------
 void enterArmedState() {
-  note("armed");
+  blePrint("armed");
 }
 void updateArmedState() {
   armedStatus();
@@ -142,13 +142,13 @@ void updateArmedState() {
   }
 }
 void leaveArmedState() {
-  note("disarmed");
+  blePrint("disarmed");
   digitalWrite(ARMED_LED, LOW);
 }
 
 // -------------- Firing State ---------------
 void enterFiringState () {
-  note("firing!");
+  blePrint("firing");
   digitalWrite(FIRING_LED, HIGH);
 
   startTimer(timerFiringState);
@@ -159,7 +159,7 @@ void updateFiringState() {
   }
 }
 void leaveFiringState() {
-  note("fired!");
+  blePrint("fired");
   digitalWrite(FIRING_LED, LOW);
   clearTimer(timerFiringState);
 }
@@ -173,4 +173,30 @@ void armedStatus() {
   } else {
     armed = true; 
   }
+}
+
+// Bluetooth UART helpers
+boolean bleIsConnected() {
+  if (bleLastStatus == ACI_EVT_CONNECTED) {
+    return true;
+  }
+  return false;
+}
+
+/*
+  The nrf8001 breakout has a maximum send buffer of 20 bytes, so we need to
+  convert message strings into a byte array for buffering.
+  
+  I'm also using my own helper so I can check the status of the modem easily
+  to prevent hanging when there's no connection.
+*/
+void blePrint(String message) {
+  if (bleIsConnected()) {
+    uint8_t sendBuffer[20];
+    message.getBytes(sendBuffer, 20);
+    char sendBufferSize = min(20, message.length());
+    
+    BluetoothLESerial.write(sendBuffer, sendBufferSize);
+  }
+  note(message);
 }

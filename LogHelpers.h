@@ -18,13 +18,13 @@ void note(String message) {
   logMessage(fullMessage); 
 }
 
-void warn(String message) {
-  String fullMessage = "WARN: "+ message;
+void info(String message) {
+  String fullMessage = "INFO: "+ message;
   logMessage(fullMessage); 
 }
 
-void error(String message) {
-  String fullMessage = "ERROR: "+ message;
+void warn(String message) {
+  String fullMessage = "warn: "+ message;
   logMessage(fullMessage); 
 }
 
