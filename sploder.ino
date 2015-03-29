@@ -132,7 +132,10 @@ void leaveReadyState() {}
 
 // -------------- Armed State ---------------
 void enterArmedState() {
-  blePrint("armed");
+  armedStatus();
+  if (armed) {
+    blePrint("armed");
+  }
 }
 void updateArmedState() {
   armedStatus();
@@ -198,5 +201,7 @@ void blePrint(String message) {
     
     BluetoothLESerial.write(sendBuffer, sendBufferSize);
   }
+  
+  // echo out the message to the serial console, regardless of BLE status
   note(message);
 }
