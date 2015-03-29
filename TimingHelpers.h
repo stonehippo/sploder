@@ -1,7 +1,7 @@
 /*
-Copyright @ 2015 George White <stonehippo@gmail.com>
+Copyright (C) 2015 George White <stonehippo@gmail.com>, All rights reserved.
 
-See https://raw.githubusercontent.com/stonehippo/sploder/master/LICENSE.txt for license details.
+See https://raw.githubusercontent.com/stonehippo/sploder/master/LICENSE.txt for license details. 
 */
 
 // ******************* Timing helpers ******************* 

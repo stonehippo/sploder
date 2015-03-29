@@ -3,15 +3,36 @@ SPLODER - a connected button for blowing stuff up. Or whatever else you want to 
 
 Check the README.md for info on the Sploder circuit.
 
-Copyright @ 2015 George White <stonehippo@gmail.com>
+Copyright (C) 2015 George White <stonehippo@gmail.com>. All rights reserved.
 
 See https://raw.githubusercontent.com/stonehippo/sploder/master/LICENSE.txt for license details.
+
+This application makes use of a modified version of the Firmata library and some code herein is adapted
+from the Adafruit StandardFirmata modified to work with their BLE library. The following copyrights and license
+apply to that code.
+
+  Copyright (C) 2006-2008 Hans-Christoph Steiner.  All rights reserved.
+  Copyright (C) 2010-2011 Paul Stoffregen.  All rights reserved.
+  Copyright (C) 2009 Shigeru Kobayashi.  All rights reserved.
+  Copyright (C) 2009-2011 Jeff Hoefs.  All rights reserved.
+  Copyright (C) 2014 Limor Fried/Kevin Townsend  All rights reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+  
+See https://raw.githubusercontent.com/stonehippo/sploder/master/FIRMATA_LICENSE.txt for license details on this code.
 */
 
 // Override enabling of logging and debug output
 //#define DEBUG false
 
 #include <FiniteStateMachine.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <Adafruit_BLE_Firmata.h>
+#include "Adafruit_BLE_UART.h"
 #include "LogHelpers.h"
 #include "TimingHelpers.h"
 
@@ -23,6 +44,17 @@ const byte ARMING_SWITCH = 8;
 const byte TRIGGER_BUTTON = 3;
 const byte ARMED_LED = 4;
 const byte FIRING_LED = 5;
+
+// Pin configs for the Adafruit nrf8001 breakout board
+const byte BLE_REQUEST = 10;
+const byte BLE_READY = 2;
+const byte BLE_RESET = 9;
+
+// Create a Bluetooth LE UART instance to set up the basic connection
+Adafruit_BLE_UART BluetoothLESerial = Adafruit_BLE_UART(BLE_REQUEST, BLE_READY, BLE_RESET);
+
+// Set up Firmata so we can chat with an app
+Adafruit_BLE_FirmataClass firmata(BluetoothLESerial);
 
 // Managing debounce of the button used to FIRE!
 long lastDebounceTime = 0;
