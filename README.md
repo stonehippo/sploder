@@ -1,10 +1,10 @@
 #SPLODER
 
-A connected button for doing stuff up. With Bluetooth Smart (aka BLE).
+A connected button for doing stuff. With Bluetooth Smart (aka BLE).
 
 ## Dependencies
 
-* [FiniteStateMachine](http://playground.arduino.cc/Code/FiniteStateMachine)
+* Aruduino [FiniteStateMachine](http://playground.arduino.cc/Code/FiniteStateMachine)
 * [Adafruit's nRF8001 Bluetooth Low Energy Breakout drivers](https://github.com/adafruit/Adafruit_nRF8001)
 
 ## What Sploder is and what it does
@@ -28,9 +28,9 @@ Sploder's FSM watches for three types of events for each state: entering, updati
 
 The *startup* state is the initial state when the Sploder device is turned on. Right now, this doesn't do much of anything except pause for a second, then immediate transition to the ready state.
 
-The *ready* state is the default resting state of the Sploder. While in this state, Sploder sits around waiting for someone to flip it's arming switch. Until that happens, Sploder is pretty boring.
+The *ready* state is the default resting state of the Sploder. While in this state, Sploder sits around waiting for someone to flip its arming switch. Until that happens, Sploder is pretty boring.
 
-The *armed* state is entered once the arming switch is flipped. At this point, Sploder will let the world know it's ready to go by lighting it's _armed_ LED. And it will start checking to see if the firing button is pressed or if someone has flipped the arming switch off again. The _armed_ LED is disabled whenever this state is left.
+The *armed* state is entered once the arming switch is flipped. At this point, Sploder will let the world know it's ready to go by lighting its _armed_ LED. And it will start checking to see if the firing button is pressed or if someone has flipped the arming switch off again. The _armed_ LED is disabled whenever this state is left.
 
 The *firing* state occurs when the firing button is pressed while in the armed state. The _firing_ LED is lit for one second, then the state is reverted back to armed.
 
