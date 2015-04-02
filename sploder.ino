@@ -157,8 +157,12 @@ void enterArmedState() {
   }
 }
 void updateArmedState() {
-  pulseFiringLED();
   armedStatus();
+  
+  if (armed) {
+    pulseFiringLED();
+  }
+  
   digitalWrite(ARMED_LED, HIGH);  
   if (!armed) {
     blePrint("disarmed");
