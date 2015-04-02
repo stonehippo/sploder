@@ -46,7 +46,7 @@ aci_evt_opcode_t bleLastStatus = ACI_EVT_DISCONNECTED;
 
 // Managing debounce of the button used to FIRE!
 long lastDebounceTime = 0;
-long debounceDelay = 250;
+long debounceDelay = 1000; // This needs to be fairly large for the big dome button; that large spring is pretty bouncy
 
 // We'll hold timing information about certain states here
 long timerStartupState = 0;
@@ -178,8 +178,13 @@ void enterFiringState () {
   startTimer(timerFiringState);
 }
 void updateFiringState() {
-  
-  if(isTimerExpired(timerFiringState, 1000)) {
+  delay(100);
+  if (isFiringLEDOn()) {
+    firingLEDOff();
+  } else {
+    firingLEDOn(); 
+  }
+  if(isTimerExpired(timerFiringState, 5000)) {
     stateMachine.transitionTo(armedState);
   }
 }
@@ -212,6 +217,13 @@ void firingLEDOn() {
 // Firing LED animation helpers
 void beginPulsingFiringLED() {
   firingLEDBrightness = START_RADIAN;
+}
+
+boolean isFiringLEDOn() {
+  if (digitalRead(FIRING_LED) == HIGH) {
+    return true;
+  }
+  return false;
 }
 
 // We use a sin wave to get a nice, clean pulse for the LED
