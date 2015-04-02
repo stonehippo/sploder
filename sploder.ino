@@ -26,6 +26,13 @@ const byte TRIGGER_BUTTON = 3;
 const byte ARMED_LED = 4;
 const byte FIRING_LED = 5;
 
+// current brightness of the firing LED (to enable pulsing); see the helpers for a little more detail
+const float START_RADIAN = 4.712; // Start at the mid-point of the sin wave (all the way off)
+const float MAX_RADIAN = 10.995; 
+const float RADIAN_STEP = 0.0005; // how many radians do we step the sign wave per loop?
+const float SIN_OFFSET = 127.5; // the offset to map the sin values back to 0-255 for analogWrite
+float firingLEDBrightness = START_RADIAN;
+
 // Pin configs for the Adafruit nrf8001 breakout board
 const byte BLE_REQUEST = 10;
 const byte BLE_READY = 2;
@@ -146,9 +153,11 @@ void enterArmedState() {
   armedStatus();
   if (armed) {
     blePrint("armed");
+    beginPulsingFiringLED();
   }
 }
 void updateArmedState() {
+  pulseFiringLED();
   armedStatus();
   digitalWrite(ARMED_LED, HIGH);  
   if (!armed) {
@@ -157,24 +166,26 @@ void updateArmedState() {
   }
 }
 void leaveArmedState() {
+  endPulsingFiringLED();
   digitalWrite(ARMED_LED, LOW);
 }
 
 // -------------- Firing State ---------------
 void enterFiringState () {
   blePrint("firing");
-  digitalWrite(FIRING_LED, HIGH);
+  firingLEDOn();
 
   startTimer(timerFiringState);
 }
 void updateFiringState() {
+  
   if(isTimerExpired(timerFiringState, 1000)) {
     stateMachine.transitionTo(armedState);
   }
 }
 void leaveFiringState() {
   blePrint("fired");
-  digitalWrite(FIRING_LED, LOW);
+  firingLEDOff();
   clearTimer(timerFiringState);
 }
 
@@ -187,6 +198,38 @@ void armedStatus() {
   } else {
     armed = true; 
   }
+}
+
+// Firing LED helpers
+void firingLEDOff() {
+  digitalWrite(FIRING_LED, LOW);
+}
+
+void firingLEDOn() {
+  digitalWrite(FIRING_LED, HIGH);
+}
+
+// Firing LED animation helpers
+void beginPulsingFiringLED() {
+  firingLEDBrightness = START_RADIAN;
+}
+
+// We use a sin wave to get a nice, clean pulse for the LED
+// Rather than using an explicit loop, we using the existing Arduino loop, the LED gets updated
+// at the speed of the microcontroller in a minimally-blocking manner
+// See https://www.sparkfun.com/tutorials/329 for more
+void pulseFiringLED() {
+  if (firingLEDBrightness < MAX_RADIAN) {
+    firingLEDBrightness = firingLEDBrightness + RADIAN_STEP;
+  } else {
+    beginPulsingFiringLED(); 
+  }
+  float currentBrightness = sin(firingLEDBrightness) * SIN_OFFSET + SIN_OFFSET;
+  analogWrite(FIRING_LED, currentBrightness);
+}
+
+void endPulsingFiringLED() {
+  firingLEDOff();
 }
 
 // Bluetooth UART helpers
