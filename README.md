@@ -11,7 +11,7 @@ A connected button for doing stuff. With Bluetooth Smart (aka BLE).
 
 The first pass design of Sploder is pretty simple. Its a connected Thing, a button that can be used to start some action, somewhere.
 
-By itself, Sploder won't do much, except light up a couple of LEDs. But if a device running the right kind of app is connected to Sploder via Bluetooth LE, that app can monitor the state of Sploder and reaction in any number of ways: changing it's own start, sending actions to other services, et cetera.
+By itself, Sploder won't do much, except light up a couple of LEDs. But if a device running the right kind of app is connected to Sploder via Bluetooth LE, that app can monitor the state of Sploder and react in any number of ways: changing it's own state, sending actions to other services, et cetera.
 
 ### Sploder's states of mind
 
