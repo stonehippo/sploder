@@ -23,7 +23,7 @@ boolean armed = false;
 // Pins configs for the buttons and switches
 const byte ARMING_SWITCH = 8;
 const byte TRIGGER_BUTTON = 3;
-const byte ARMED_LED = 4;
+const byte POWERED_LED = 7;
 const byte FIRING_LED = 5;
 
 // current brightness of the firing LED (to enable pulsing); see the helpers for a little more detail
@@ -66,7 +66,7 @@ FSM stateMachine = FSM(startupState);
 void setup() {
   pinMode(TRIGGER_BUTTON, INPUT_PULLUP);
   pinMode(ARMING_SWITCH, INPUT_PULLUP);
-  pinMode(ARMED_LED, OUTPUT);
+  pinMode(POWERED_LED, OUTPUT);
   pinMode(FIRING_LED, OUTPUT);
   
   attachInterrupt(1,fireEvent,HIGH);
@@ -123,6 +123,7 @@ void fireEvent() {
 
 // -------------- Startup State ---------------
 void enterStartupState() {
+  digitalWrite(POWERED_LED, HIGH);
   note("starting up");
   startTimer(timerStartupState);
 }
@@ -163,7 +164,6 @@ void updateArmedState() {
     pulseFiringLED();
   }
   
-  digitalWrite(ARMED_LED, HIGH);  
   if (!armed) {
     blePrint("disarmed");
     stateMachine.transitionTo(readyState);
@@ -171,7 +171,6 @@ void updateArmedState() {
 }
 void leaveArmedState() {
   endPulsingFiringLED();
-  digitalWrite(ARMED_LED, LOW);
 }
 
 // -------------- Firing State ---------------
