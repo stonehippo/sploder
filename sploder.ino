@@ -229,7 +229,7 @@ boolean isFiringLEDOn() {
   return false;
 }
 
-// We use a sin wave to get a nice, clean pulse for the LED
+// We use a sine wave to get a nice, clean pulse for the LED
 // Rather than using an explicit loop, we using the existing Arduino loop, the LED gets updated
 // at the speed of the microcontroller in a minimally-blocking manner
 // See https://www.sparkfun.com/tutorials/329 for more
