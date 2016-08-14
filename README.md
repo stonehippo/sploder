@@ -4,7 +4,7 @@ A connected button for doing stuff. With Bluetooth Smart (aka BLE).
 
 ## Dependencies
 
-* Aruduino [FiniteStateMachine](http://playground.arduino.cc/Code/FiniteStateMachine)
+* Arduino [FiniteStateMachine](http://playground.arduino.cc/Code/FiniteStateMachine) - installed in `/lib`
 * [Adafruit's nRF8001 Bluetooth Low Energy Breakout drivers](https://github.com/adafruit/Adafruit_nRF8001)
 
 ## What Sploder is and what it does
@@ -36,9 +36,9 @@ The *firing* state occurs when the firing button is pressed while in the armed s
 
 ## Building Sploder
 
-Sploder is currently being developed using [Arduino](http://arduino.cc) 1.0.6, mostly due to incompatibilities between the Arduino 1.5/1.6 branch and the Adafruit BLE libraries.
+Sploder is currently being developed using [Platform.io](http://platformio.org).
 
-If you want to hack on Sploder, clone the project into your Arduino sketchbook directory, and make sure you've installed the library dependencies above.
+If you want to hack on Sploder, clone the project, and make sure you've installed the library dependencies above.
 
 ## Design notes
 

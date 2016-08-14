@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 /*
 SPLODER - a connected button for blowing stuff up. Or whatever else you want to do with it.
 
@@ -16,6 +18,7 @@ See https://raw.githubusercontent.com/stonehippo/sploder/master/LICENSE.txt for 
 #include "Adafruit_BLE_UART.h"
 #include "LogHelpers.h"
 #include "TimingHelpers.h"
+#include "sploder.h"
 
 // Hold the state of the arming switch
 boolean armed = false;
@@ -28,7 +31,7 @@ const byte FIRING_LED = 5;
 
 // current brightness of the firing LED (to enable pulsing); see the helpers for a little more detail
 const float START_RADIAN = 4.712; // Start at the mid-point of the sin wave (all the way off)
-const float MAX_RADIAN = 10.995; 
+const float MAX_RADIAN = 10.995;
 const float RADIAN_STEP = 0.00045; // how many radians do we step the sign wave per loop? optimized for 3.3v, 8mHz set to 0.000225 for a 16mHz Arduino
 const float SIN_OFFSET = 127.5; // the offset to map the sin values back to 0-255 for analogWrite
 float firingLEDBrightness = START_RADIAN;
@@ -61,14 +64,14 @@ State firingState = State(enterFiringState,updateFiringState,leaveFiringState);
 // Kicking off the FSM
 FSM stateMachine = FSM(startupState);
 
-// ******************* BASIC ARDUINO SETUP & LOOP ******************* 
+// ******************* BASIC ARDUINO SETUP & LOOP *******************
 
 void setup() {
   pinMode(TRIGGER_BUTTON, INPUT_PULLUP);
   pinMode(ARMING_SWITCH, INPUT_PULLUP);
   pinMode(POWERED_LED, OUTPUT);
   pinMode(FIRING_LED, OUTPUT);
-  
+
   attachInterrupt(1,fireEvent,HIGH);
   startLog();
   BluetoothLESerial.begin();
@@ -102,13 +105,13 @@ void loop() {
     }
     bleLastStatus = bleStatus;
   }
-  
+
   // Time to handle the state machine
   stateMachine.update();
 }
 
 
-// ******************* INTERRUPT EVENTS ******************* 
+// ******************* INTERRUPT EVENTS *******************
 
 void fireEvent() {
   if ((millis() - lastDebounceTime) > debounceDelay) {
@@ -119,7 +122,7 @@ void fireEvent() {
   }
 }
 
-// ******************* FSM state callback methods ******************* 
+// ******************* FSM state callback methods *******************
 
 // -------------- Startup State ---------------
 void enterStartupState() {
@@ -144,7 +147,7 @@ void enterReadyState() {
 void updateReadyState() {
   armedStatus();
   if (armed) {
-    stateMachine.transitionTo(armedState); 
+    stateMachine.transitionTo(armedState);
   }
 }
 void leaveReadyState() {}
@@ -159,11 +162,11 @@ void enterArmedState() {
 }
 void updateArmedState() {
   armedStatus();
-  
+
   if (armed) {
     pulseFiringLED();
   }
-  
+
   if (!armed) {
     blePrint("disarmed");
     stateMachine.transitionTo(readyState);
@@ -185,7 +188,7 @@ void updateFiringState() {
   if (isFiringLEDOn()) {
     firingLEDOff();
   } else {
-    firingLEDOn(); 
+    firingLEDOn();
   }
   if(isTimerExpired(timerFiringState, 5000)) {
     stateMachine.transitionTo(armedState);
@@ -197,14 +200,14 @@ void leaveFiringState() {
   clearTimer(timerFiringState);
 }
 
-// ******************* HELPERS ******************* 
+// ******************* HELPERS *******************
 
 // Switch state helpers
 void armedStatus() {
   if (digitalRead(ARMING_SWITCH) == HIGH) {
     armed = false;
   } else {
-    armed = true; 
+    armed = true;
   }
 }
 
@@ -237,7 +240,7 @@ void pulseFiringLED() {
   if (firingLEDBrightness < MAX_RADIAN) {
     firingLEDBrightness = firingLEDBrightness + RADIAN_STEP;
   } else {
-    beginPulsingFiringLED(); 
+    beginPulsingFiringLED();
   }
   float currentBrightness = sin(firingLEDBrightness) * SIN_OFFSET + SIN_OFFSET;
   analogWrite(FIRING_LED, currentBrightness);
@@ -258,7 +261,7 @@ boolean bleIsConnected() {
 /*
   The nrf8001 breakout has a maximum send buffer of 20 bytes, so we need to
   convert message strings into a byte array for buffering.
-  
+
   I'm also using my own helper so I can check the status of the modem easily
   to prevent hanging when there's no connection.
 */
@@ -267,10 +270,10 @@ void blePrint(String message) {
     uint8_t sendBuffer[20];
     message.getBytes(sendBuffer, 20);
     char sendBufferSize = min(20, message.length());
-    
+
     BluetoothLESerial.write(sendBuffer, sendBufferSize);
   }
-  
+
   // echo out the message to the serial console, regardless of BLE status
   note(message);
 }
