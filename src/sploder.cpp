@@ -30,9 +30,9 @@ const byte POWERED_LED = 7;
 const byte FIRING_LED = 5;
 
 // current brightness of the firing LED (to enable pulsing); see the helpers for a little more detail
-const float START_RADIAN = 4.712; // Start at the mid-point of the sin wave (all the way off)
+const float START_RADIAN = 4.712; // Start at the mid-point of the sine wave (all the way off)
 const float MAX_RADIAN = 10.995;
-const float RADIAN_STEP = 0.00045; // how many radians do we step the sign wave per loop? optimized for 3.3v, 8mHz set to 0.000225 for a 16mHz Arduino
+const float RADIAN_STEP = 0.00045; // how many radians do we step the sine wave per loop? optimized for 3.3v, 8mHz set to 0.000225 for a 16mHz Arduino
 const float SIN_OFFSET = 127.5; // the offset to map the sin values back to 0-255 for analogWrite
 float firingLEDBrightness = START_RADIAN;
 
