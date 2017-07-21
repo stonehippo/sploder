@@ -75,6 +75,7 @@ void setup() {
   attachInterrupt(1,fireEvent,HIGH);
   startLog();
   BluetoothLESerial.begin();
+  BluetoothLESerial.setDeviceName("Sploder");
 }
 
 void loop() {
