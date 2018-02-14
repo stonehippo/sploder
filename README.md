@@ -1,4 +1,4 @@
-#SPLODER
+# SPLODER
 
 A connected button for doing stuff. With Bluetooth Smart (aka BLE).
 
