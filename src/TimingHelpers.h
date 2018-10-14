@@ -9,7 +9,7 @@ void startTimer(long &timer) {
   timer = millis(); 
 }
 
-boolean isTimerExpired(long &timer, int expiration) {
+boolean isTimerExpired(long &timer, long expiration) {
   long current = millis() - timer;
   return current > expiration;
 }
